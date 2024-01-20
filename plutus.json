@@ -12,7 +12,7 @@
   },
   "validators": [
     {
-      "title": "simple.burn",
+      "title": "samples/simple.burn",
       "datum": {
         "title": "_datum",
         "schema": {
@@ -29,7 +29,7 @@
       "hash": "66a67769edd0c54d5f6ec8ba3925394bf0e4fc1f8bfbe3a131eb523c"
     },
     {
-      "title": "simple.gift",
+      "title": "samples/simple.gift",
       "datum": {
         "title": "_datum",
         "schema": {
@@ -44,12 +44,132 @@
       },
       "compiledCode": "510100003222253330044a229309b2b2b9a1",
       "hash": "39c520d0627aafa728f7e4dd10142b77c257813c36f57e2cb88f72a5"
+    },
+    {
+      "title": "samples/typed.guessing",
+      "datum": {
+        "title": "datum",
+        "schema": {
+          "$ref": "#/definitions/samples~1typed~1Answer"
+        }
+      },
+      "redeemer": {
+        "title": "redeemer",
+        "schema": {
+          "$ref": "#/definitions/samples~1typed~1Guess"
+        }
+      },
+      "compiledCode": "589e0100003232323232323232222323253330083253330093330090014a094440044004c8cdc39bad30013007005375a6002600e00c4601a00229309b2b19299980419b87480000044c8c94ccc034c03c00852616375a601a002600c0082c600c00664a66600e66e1d200000113232533300c300e002149858dd6980600098028020b1802801918029baa001230033754002ae6955ceaab9e5573eae855d101",
+      "hash": "fab2c5804cfd76bc77038635aa1914fd8828131abeaec2a14268d917"
+    },
+    {
+      "title": "samples/typed.simple_typed",
+      "datum": {
+        "title": "_datum",
+        "schema": {
+          "$ref": "#/definitions/Void"
+        }
+      },
+      "redeemer": {
+        "title": "redeemer",
+        "schema": {
+          "$ref": "#/definitions/Int"
+        }
+      },
+      "compiledCode": "582a010000322223253330053253330063330060014a094440044004cdc3800a40a829309b2b1bad00257341",
+      "hash": "a41828ed5f3d71df7be70fe306cace17871c78aff7ff2b38d11944da"
+    },
+    {
+      "title": "samples/vesting.vesting",
+      "datum": {
+        "title": "datum",
+        "schema": {
+          "$ref": "#/definitions/samples~1vesting~1VestingDatum"
+        }
+      },
+      "redeemer": {
+        "title": "_redeemer",
+        "schema": {
+          "$ref": "#/definitions/Void"
+        }
+      },
+      "compiledCode": "59014e0100003232323232323232222325333007323253330093322330034901194e6f74207369676e65642062792062656e65666963696172790032323300100100222533301100114a026464a66602066e3c008018528899802002000980a0011bae30120013758601e6020602060206020602060206020602060120046004600e0086eb8c008c01c0184cc88c8c94ccc034cdc3a400400226600a9201144d61747572697479206e6f74207265616368656400337120066eb4c044c02c00852818058009802180498021804801180698071807180718071807180718071803980118038021bad300d300e300700614a044a6660146660140029412888008800918060008a4c26cac64a66600e66e1d2000001132323232533300e3010002149858dd6980700098070011bae300c0013005004163005003230053754002460066ea80055cd2ab9d5573caae7d5d0aba21",
+      "hash": "cb036a9004df08afb1a3d811a8c1b4a92c8d7e49c2d5cf2ec0a3aa48"
     }
   ],
   "definitions": {
+    "ByteArray": {
+      "dataType": "bytes"
+    },
     "Data": {
       "title": "Data",
       "description": "Any Plutus data."
+    },
+    "Int": {
+      "dataType": "integer"
+    },
+    "Void": {
+      "title": "Unit",
+      "description": "The nullary constructor.",
+      "anyOf": [
+        {
+          "dataType": "constructor",
+          "index": 0,
+          "fields": []
+        }
+      ]
+    },
+    "samples/typed/Answer": {
+      "title": "Answer",
+      "anyOf": [
+        {
+          "title": "Answer",
+          "dataType": "constructor",
+          "index": 0,
+          "fields": [
+            {
+              "title": "answer",
+              "$ref": "#/definitions/Int"
+            }
+          ]
+        }
+      ]
+    },
+    "samples/typed/Guess": {
+      "title": "Guess",
+      "anyOf": [
+        {
+          "title": "Guess",
+          "dataType": "constructor",
+          "index": 0,
+          "fields": [
+            {
+              "title": "guess",
+              "$ref": "#/definitions/Int"
+            }
+          ]
+        }
+      ]
+    },
+    "samples/vesting/VestingDatum": {
+      "title": "VestingDatum",
+      "anyOf": [
+        {
+          "title": "VestingDatum",
+          "dataType": "constructor",
+          "index": 0,
+          "fields": [
+            {
+              "title": "beneficiary",
+              "$ref": "#/definitions/ByteArray"
+            },
+            {
+              "title": "maturity",
+              "$ref": "#/definitions/Int"
+            }
+          ]
+        }
+      ]
     }
   }
 }
