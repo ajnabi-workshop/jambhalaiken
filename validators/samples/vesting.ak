@@ -34,3 +34,16 @@ fn must_start_after(range: ValidityRange, maturity: POSIXTime) {
     }
   }
 }
+
+validator(beneficiary: PubKeyHash) {
+  fn param_vesting(
+    datum: POSIXTime,
+    _redeemer: Void,
+    ctx: ScriptContext,
+  ) -> Bool {
+    and {
+      must_be_signed_by(ctx.transaction, beneficiary),
+      must_start_after(ctx.transaction.validity_range, datum),
+    }
+  }
+}

@@ -1,4 +1,5 @@
 from functools import partial
+import argparse
 import json
 import os
 import subprocess
@@ -27,8 +28,12 @@ def mk_output(version, validator):
     }
 
 
+def split_title(validator):
+    return validator.get('title').split('.')
+
+
 def convert_blueprint(validator):
-    (m, v) = validator.get('title').split('.')
+    (m, v) = split_title(validator)
     cmd = f'aiken blueprint convert -m {m} -v {v} .'
     try:
         result = subprocess.run(cmd, shell=True, check=True,
@@ -99,13 +104,32 @@ def write_addr(validator, suffix=None):
 
 
 def write(suffix=None):
+    parser = argparse.ArgumentParser(
+        description="A script with an optional argument.")
+    parser.add_argument('--validator', '-v', type=str,
+                        help='Specify a validator name.')
+
+    args = parser.parse_args()
+
     print("\nWriting scripts and addresses...\n")
     plutus_json_path = 'plutus.json'
     plutus_json = read_json_file(plutus_json_path)
 
     if plutus_json:
-        validators = [convert_blueprint(val)
-                      for val in plutus_json.get('validators')]
+        json_vals = plutus_json.get('validators')
+        if args.validator:
+            arg_val = next(
+                filter(
+                    lambda v: split_title(v)[1] == args.validator, json_vals),
+                None)
+            if arg_val:
+                validators = [convert_blueprint(arg_val)]
+            else:
+                print(f"Error: '{args.validator}' not found in plutus.json!")
+                exit(1)
+        else:
+            validators = [convert_blueprint(val)
+                          for val in json_vals]
         for val in validators:
             write_plutus(val, suffix)
             write_addr(val, suffix)
