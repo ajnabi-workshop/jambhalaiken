@@ -10,24 +10,20 @@ type VestingDatum {
 
 validator {
   fn vesting(datum: VestingDatum, _redeemer: Void, ctx: ScriptContext) -> Bool {
-    and {
-      must_be_signed_by(ctx.transaction, datum.beneficiary),
-      must_start_after(ctx.transaction.validity_range, datum.maturity),
-    }
+    must_be_signed_by(ctx.transaction, datum.beneficiary)? && must_start_after(
+      ctx.transaction.validity_range,
+      datum.maturity,
+    )?
   }
 }
 
 fn must_be_signed_by(transaction: Transaction, pkh: PubKeyHash) {
-  trace_if_false(
-    @"Not signed by beneficiary",
-    list.has(transaction.extra_signatories, pkh),
-  )
+  list.has(transaction.extra_signatories, pkh)
 }
 
 fn must_start_after(range: ValidityRange, maturity: POSIXTime) {
   when range.lower_bound.bound_type is {
-    Finite(tx_earliest_time) ->
-      trace_if_false(@"Maturity not reached", tx_earliest_time >= maturity)
+    Finite(tx_earliest_time) -> (tx_earliest_time >= maturity)?
     _ -> {
       trace @"Non-finite interval"
       False
@@ -41,9 +37,9 @@ validator(beneficiary: PubKeyHash) {
     _redeemer: Void,
     ctx: ScriptContext,
   ) -> Bool {
-    and {
-      must_be_signed_by(ctx.transaction, beneficiary),
-      must_start_after(ctx.transaction.validity_range, datum),
-    }
+    must_be_signed_by(ctx.transaction, datum.beneficiary)? && must_start_after(
+      ctx.transaction.validity_range,
+      datum.maturity,
+    )?
   }
 }
