@@ -1,7 +1,7 @@
 use aiken/interval.{Finite}
 use aiken/list
 use aiken/transaction.{ScriptContext, Transaction, ValidityRange}
-use utils.{POSIXTime, PubKeyHash, trace_if_false}
+use utils.{POSIXTime, PubKeyHash}
 
 type VestingDatum {
   beneficiary: PubKeyHash,
@@ -33,13 +33,13 @@ fn must_start_after(range: ValidityRange, maturity: POSIXTime) {
 
 validator(beneficiary: PubKeyHash) {
   fn param_vesting(
-    datum: POSIXTime,
+    maturity: POSIXTime,
     _redeemer: Void,
     ctx: ScriptContext,
   ) -> Bool {
-    must_be_signed_by(ctx.transaction, datum.beneficiary)? && must_start_after(
+    must_be_signed_by(ctx.transaction, beneficiary)? && must_start_after(
       ctx.transaction.validity_range,
-      datum.maturity,
+      maturity,
     )?
   }
 }

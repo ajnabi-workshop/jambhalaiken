@@ -1,5 +1,5 @@
 use aiken/dict as dict
-use aiken/list as list
+use aiken/list.{any} as list
 use aiken/transaction.{Input, OutputReference, ScriptContext, Transaction} as tx
 use aiken/transaction/value.{AssetName, MintedValue, PolicyId}
 
@@ -29,7 +29,7 @@ validator(token_name: ByteArray, oref: OutputReference) {
 }
 
 fn has_utxo(oref: OutputReference, inputs: List<Input>) {
-  list.any(inputs, fn(input) { input.output_reference == oref })
+  any(inputs, fn(input) { input.output_reference == oref })
 }
 
 fn check_mint(cs: PolicyId, tn: AssetName, mint: MintedValue, mint_qty: Int) {

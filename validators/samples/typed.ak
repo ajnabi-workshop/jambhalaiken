@@ -1,5 +1,4 @@
 use aiken/transaction.{ScriptContext}
-use utils.{trace_if_false}
 
 validator {
   fn simple_typed(_datum: Void, redeemer: Int, _ctx: ScriptContext) -> Bool {
