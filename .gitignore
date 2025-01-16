@@ -6,3 +6,6 @@ build/
 docs/
 
 plutus.json
+
+.direnv/
+.env
