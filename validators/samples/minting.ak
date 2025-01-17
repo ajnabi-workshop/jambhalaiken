@@ -1,24 +1,23 @@
-use aiken/dict as dict
-use aiken/list.{any} as list
-use aiken/transaction.{Input, OutputReference, ScriptContext, Transaction} as tx
-use aiken/transaction/value.{AssetName, MintedValue, PolicyId}
+use aiken/collection/dict as dict
+use aiken/collection/list.{any} as list
+use cardano/transaction.{Input, OutputReference, Transaction} as tx
+use cardano/assets.{AssetName, Value, PolicyId}
 
-validator {
-  fn free_minting(_redeemer: Void, _ctx: ScriptContext) -> Bool {
+validator free_minting{
+  mint(_redeemer: Void, _policy_id: PolicyId, _self: Transaction) -> Bool {
     True
   }
 }
 
-type Mode {
+pub type Mode {
   Minting
   Burning
 }
 
-validator(token_name: ByteArray, oref: OutputReference) {
-  fn nft(redeemer: Mode, ctx: ScriptContext) -> Bool {
-    expect tx.Mint(policy_id) = ctx.purpose
+validator nft(token_name: ByteArray, oref: OutputReference) {
+  mint(redeemer: Mode, policy_id: PolicyId, self: Transaction) -> Bool {
 
-    let Transaction { inputs, mint, .. } = ctx.transaction
+    let Transaction { inputs, mint, .. } = self
 
     when redeemer is {
       Minting ->
@@ -32,11 +31,10 @@ fn has_utxo(oref: OutputReference, inputs: List<Input>) {
   any(inputs, fn(input) { input.output_reference == oref })
 }
 
-fn check_mint(cs: PolicyId, tn: AssetName, mint: MintedValue, mint_qty: Int) {
-  expect [(asset_name, qty)] =
+fn check_mint(cs: PolicyId, tn: AssetName, mint: Value, mint_qty: Int) {
+  expect [Pair(asset_name, qty)] =
     mint
-      |> value.from_minted_value
-      |> value.tokens(cs)
-      |> dict.to_list()
+      |> assets.tokens(cs)
+      |> dict.to_pairs()
   (qty == mint_qty)? && (asset_name == tn)?
 }

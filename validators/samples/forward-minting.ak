@@ -1,36 +1,34 @@
-use aiken/bytearray.{push}
-use aiken/hash.{Blake2b_224, Hash, sha2_256}
-use aiken/list.{any}
-use aiken/transaction.{Output, OutputReference, ScriptContext}
-use aiken/transaction/credential.{Script,
-  VerificationKey, from_verification_key}
-use aiken/transaction/value.{
-  AssetName, MintedValue, PolicyId, from_minted_value, lovelace_of, quantity_of,
-}
-use utils.{find_own_input, forward_to_validator}
+use aiken/primitive/bytearray.{push}
+use aiken/crypto.{Script, Blake2b_224, Hash, VerificationKey, sha2_256}
+use aiken/collection/list.{any}
+use cardano/assets.{PolicyId, AssetName, Value, lovelace_of, quantity_of}
+use cardano/transaction.{Output, OutputReference, Transaction}
+use cardano/address.{from_verification_key}
+use utils.{forward_to_validator}
 
-type TicketDatum {
+pub type TicketDatum {
   policy_id: PolicyId,
   redeemer_hash: ByteArray,
   ticket_price: Int,
 }
 
 // Spending Validator
-validator(host_pkh: Hash<Blake2b_224, VerificationKey>) {
-  fn ticket_spend(
-    datum: TicketDatum,
+validator ticket_spend(host_pkh: Hash<Blake2b_224, VerificationKey>) {
+  spend(
+    datum: Option<TicketDatum>,
     redeemer: ByteArray,
-    ctx: ScriptContext,
+    utxo: OutputReference,
+    self: Transaction
   ) -> Bool {
-    expect Some(input) = find_own_input(ctx)
-    (sha2_256(redeemer) == datum.redeemer_hash)? && check_payment(
+    expect Some(ticket_datum) = datum
+    (sha2_256(redeemer) == ticket_datum.redeemer_hash)? && check_payment(
       host_pkh,
-      datum.ticket_price,
-      ctx.transaction.outputs,
+      ticket_datum.ticket_price,
+      self.outputs,
     )? && check_mint(
-      datum.policy_id,
-      mk_ticket_name(input.output_reference),
-      ctx.transaction.mint,
+      ticket_datum.policy_id,
+      mk_ticket_name(utxo),
+      self.mint,
     )?
   }
 }
@@ -53,20 +51,19 @@ fn check_payment(
 fn check_mint(
   policy_id: PolicyId,
   token_name: AssetName,
-  minted: MintedValue,
+  minted: Value,
 ) -> Bool {
-  let val = from_minted_value(minted)
-  quantity_of(val, policy_id, token_name) == 1
+  quantity_of(minted, policy_id, token_name) == 1
 }
 
 fn mk_ticket_name(oref: OutputReference) -> AssetName {
   let OutputReference { transaction_id, output_index } = oref
-  transaction_id.hash |> push(output_index) |> sha2_256
+  transaction_id |> push(output_index) |> sha2_256
 }
 
 // Forwarding Minting Policy
-validator(val_hash: Hash<Blake2b_224, Script>) {
-  fn ticket_mint(_redeemer: Void, ctx: ScriptContext) -> Bool {
-    forward_to_validator(val_hash, ctx)
+validator ticket_mint(val_hash: Hash<Blake2b_224, Script>) {
+  mint(_redeemer: Void, _policy_id: PolicyId, self: Transaction) -> Bool {
+    forward_to_validator(val_hash, self)
   }
 }

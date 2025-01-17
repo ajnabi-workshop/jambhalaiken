@@ -1,21 +1,22 @@
-use aiken/transaction.{ScriptContext}
+use cardano/assets.{PolicyId}
+use cardano/transaction.{OutputReference, Transaction}
 
-fn true() -> Bool {
+pub fn true() -> Bool {
   True
 }
 
-fn is_even(x: Int) -> Bool {
+pub fn is_even(x: Int) -> Bool {
   x % 2 == 0
 }
 
-validator {
-  fn free_mint(_redeemer: Void, _script_context: ScriptContext) -> Bool {
+validator free_mint {
+  mint(_redeemer: Void, _policy_id: PolicyId, _self: Transaction) -> Bool {
     True
   }
 }
 
-validator {
-  fn gift(_datum: Void, _redeemer: Void, _script_context: ScriptContext) -> Bool {
+validator gift {
+  spend(_datum: Option<Void>, _redeemer: Void, _utxo: OutputReference, _self: Transaction) -> Bool {
     True
   }
 }

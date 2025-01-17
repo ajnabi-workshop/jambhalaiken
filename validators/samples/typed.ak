@@ -1,21 +1,22 @@
-use aiken/transaction.{ScriptContext}
+use cardano/transaction.{OutputReference, Transaction}
 
-validator {
-  fn simple_typed(_datum: Void, redeemer: Int, _ctx: ScriptContext) -> Bool {
+validator simple_typed {
+  spend(_datum: Option<Void>, redeemer: Int, _utxo: OutputReference, _self: Transaction) -> Bool {
     (redeemer == 42)?
   }
 }
 
-type Answer {
-  answer: Int,
+pub type Answer {
+  val: Int,
 }
 
-type Guess {
-  guess: Int,
+pub type Guess {
+  val: Int,
 }
 
-validator {
-  fn guessing(datum: Answer, redeemer: Guess, _ctx: ScriptContext) -> Bool {
-    (redeemer.guess == datum.answer)?
+validator guessing {
+  spend(datum: Option<Answer>, redeemer: Guess, _utxo: OutputReference, _self: Transaction) -> Bool {
+    expect Some(answer) = datum
+    (redeemer.val == answer.val)?
   }
 }

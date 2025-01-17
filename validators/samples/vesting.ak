@@ -1,18 +1,19 @@
 use aiken/interval.{Finite}
-use aiken/list
-use aiken/transaction.{ScriptContext, Transaction, ValidityRange}
+use aiken/collection/list
+use cardano/transaction.{OutputReference, Transaction, ValidityRange}
 use utils.{POSIXTime, PubKeyHash}
 
-type VestingDatum {
+pub type VestingDatum {
   beneficiary: PubKeyHash,
   maturity: POSIXTime,
 }
 
-validator {
-  fn vesting(datum: VestingDatum, _redeemer: Void, ctx: ScriptContext) -> Bool {
-    must_be_signed_by(ctx.transaction, datum.beneficiary)? && must_start_after(
-      ctx.transaction.validity_range,
-      datum.maturity,
+validator vesting {
+  spend(datum: Option<VestingDatum>, _redeemer: Void, _utxo: OutputReference, self: Transaction) -> Bool {
+    expect Some(vesting_datum) = datum
+    must_be_signed_by(self, vesting_datum.beneficiary)? && must_start_after(
+      self.validity_range,
+      vesting_datum.maturity,
     )?
   }
 }
@@ -31,14 +32,16 @@ fn must_start_after(range: ValidityRange, maturity: POSIXTime) {
   }
 }
 
-validator(beneficiary: PubKeyHash) {
-  fn param_vesting(
-    maturity: POSIXTime,
+validator param_vesting(beneficiary: PubKeyHash) {
+  spend(
+    datum: Option<POSIXTime>,
     _redeemer: Void,
-    ctx: ScriptContext,
+    _utxo: OutputReference,
+    self: Transaction,
   ) -> Bool {
-    must_be_signed_by(ctx.transaction, beneficiary)? && must_start_after(
-      ctx.transaction.validity_range,
+    expect Some(maturity) = datum
+    must_be_signed_by(self, beneficiary)? && must_start_after(
+      self.validity_range,
       maturity,
     )?
   }

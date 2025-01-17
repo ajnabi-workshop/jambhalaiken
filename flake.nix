@@ -38,8 +38,8 @@
               {
                 name = "aiken";
                 publisher = "TxPipe";
-                version = "1.0.8";
-                sha256 = "99b000d27a710d7313dd2639a4ff56ec9d38dcbbbf126c36f259683217a3a6f9";
+                version = "1.0.11";
+                sha256 = "18ea6f3c59f1649156a1709c282d8e05939fed7f915aab656a3192b91b4d5efa";
               }
             ];
           })
