@@ -5,4 +5,9 @@
   "deno.lint": true,
   "editor.defaultFormatter": "denoland.vscode-deno",
   "deno.config": "./deno.json",
+  "terminal.integrated.defaultProfile.linux": "bash",
+  "vscode-neovim.neovimExecutablePaths.linux": "nvim",
+  "vscode-neovim.neovimExecutablePaths.darwin": "nvim",
+  "workbench.colorTheme": "Dracula",
+  "workbench.iconTheme": "vs-seti",
 }
